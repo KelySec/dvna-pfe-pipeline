@@ -48,7 +48,7 @@ pipeline {
                   --severity HIGH,CRITICAL ^
                   --format template ^
                   --template "@/usr/local/share/trivy/templates/html.tpl" ^
-                  -o trivy-report.html ^
+                  -o /work/trivy-report.html ^
                   dvna-pfe:pipeline || exit 0
                 '''
             }
