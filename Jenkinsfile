@@ -20,8 +20,7 @@ pipeline {
             steps {
                 echo '=== Analyse statique du code ==='
                 bat '''
-                    chcp 65001 > nul
-                    docker run --rm -e PYTHONIOENCODING=utf-8 -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js || exit 0
+                    docker run --rm -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js --text --no-color || exit 0
                 '''
             }
         }
