@@ -29,7 +29,10 @@ pipeline {
         stage('3 - SCA (npm audit)') {
             steps {
                 echo '=== Analyse des dependances ==='
-                bat 'npm audit --audit-level=critical || exit 0'
+                bat '''
+                    if not exist sca-report mkdir sca-report
+                    npm audit --audit-level=critical > sca-report\\npm-audit-report.txt 2>&1 || exit 0
+                '''
             }
         }
 
