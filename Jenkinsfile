@@ -24,18 +24,6 @@ pipeline {
                     docker run --rm -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js --output /src/semgrep-report/semgrep-report.txt || exit 0
                 '''
             }
-            post {
-                always {
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'semgrep-report',
-                        reportFiles: 'semgrep-report.txt',
-                        reportName: 'Semgrep SAST Report'
-                    ])
-                }
-            }
         }
         
         stage('3 - SCA (npm audit)') {
