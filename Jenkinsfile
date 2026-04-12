@@ -20,8 +20,17 @@ pipeline {
             steps {
                 echo '=== Analyse statique du code ==='
                 bat '''
+                    chcp 65001
                     if not exist semgrep-report mkdir semgrep-report
-                    docker run --rm -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js --output /src/semgrep-report/semgrep-report.txt || exit 0
+                    docker run --rm -v "%CD%:/src" ^
+                        -e SEMGREP_FORCE_COLOR=0 ^
+                        returntocorp/semgrep semgrep ^
+                        --config=p/nodejs ^
+                        --config=p/security-audit ^
+                        --text ^
+                        --no-color ^
+                        /src/server.js ^
+                        --output /src/semgrep-report/semgrep-report.txt || exit 0
                 '''
             }
         }
