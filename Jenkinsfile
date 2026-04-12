@@ -22,7 +22,7 @@ pipeline {
                 bat '''
                     chcp 65001
                     if not exist semgrep-report mkdir semgrep-report
-                    docker run --rm -v "%CD%:/src" -e SEMGREP_FORCE_COLOR=0 returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit --text /src/server.js --output /src/semgrep-report/semgrep-report.txt || exit 0
+                    docker run --rm -v "%CD%:/src" -e SEMGREP_FORCE_COLOR=0 -e NO_COLOR=1 -e PYTHONIOENCODING=utf-8 returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit --json /src/server.js --output /src/semgrep-report/semgrep-report.json || exit 0
                 '''
             }
         }
