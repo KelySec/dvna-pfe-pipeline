@@ -75,7 +75,13 @@ pipeline {
             steps {
                 echo '=== Analyse IaC Dockerfile ==='
                 bat '''
-                    docker run --rm -v "%CD%:/workspace" bridgecrew/checkov:2.3.0 -f /workspace/Dockerfile --framework dockerfile || exit 0
+                    if not exist checkov-report mkdir checkov-report
+                    docker run --rm -v "%CD%:/workspace" bridgecrew/checkov:2.3.0 -f /workspace/Dockerfile --framework dockerfile > checkov-report\\checkov-report.txt 2>&1 || exit 0
+                '''
+                powershell encoding: 'UTF-8', script: '''
+                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                    $content = Get-Content -Path "checkov-report/checkov-report.txt" -Encoding UTF8 -Raw
+                    Write-Output $content
                 '''
             }
         }
