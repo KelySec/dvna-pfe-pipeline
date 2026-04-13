@@ -12,19 +12,20 @@ pipeline {
                 echo '=== Scan des secrets hardcodes ==='
                 bat '''
                     if not exist gitleaks-report mkdir gitleaks-report
-                    D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git --no-banner -v > gitleaks-report\\gitleaks-report.txt 2>&1 || exit 0
-                '''
-                powershell encoding: 'UTF-8', script: '''
-                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-                    $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
-                    Write-Output $content
-                '''
-                bat '''
-                    D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git --no-banner -v
+                    D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git --no-banner -v > gitleaks-report\\gitleaks-report.txt 2>&1
                 '''
             }
+            post {
+                always {
+                    powershell encoding: 'UTF-8', script: '''
+                        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                        $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
+                        Write-Output $content
+                    '''
+                }
+            }
         }
-
+        
         stage('2 - SAST (Semgrep)') {
             steps {
                 echo '=== Analyse statique du code ==='
