@@ -45,7 +45,13 @@ pipeline {
                 echo '=== Scan de l image Docker ==='
                 bat '''
                     docker build -t dvna-pfe:pipeline .
-                    docker run --rm -v //var/run/docker.sock://var/run/docker.sock ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table --no-progress --ignore-unfixed --skip-dirs /usr/local/lib/node_modules --skip-dirs /opt dvna-pfe:pipeline || exit 0
+                    if not exist trivy-report mkdir trivy-report
+                    docker run --rm -v //var/run/docker.sock://var/run/docker.sock -v "%CD%/trivy-report:/report" ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table --no-progress --ignore-unfixed --skip-dirs /usr/local/lib/node_modules --skip-dirs /opt --output /report/trivy-report.txt dvna-pfe:pipeline 2>nul || exit 0
+                '''
+                powershell encoding: 'UTF-8', script: '''
+                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                    $content = Get-Content -Path "trivy-report/trivy-report.txt" -Encoding UTF8 -Raw
+                    Write-Output $content
                 '''
             }
         }
