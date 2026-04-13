@@ -11,7 +11,13 @@ pipeline {
             steps {
                 echo '=== Scan des secrets hardcodes ==='
                 bat '''
-                    D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git -v || exit 0
+                    if not exist gitleaks-report mkdir gitleaks-report
+                    D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git -v > gitleaks-report\\gitleaks-report.txt 2>&1 || exit 0
+                '''
+                powershell encoding: 'UTF-8', script: '''
+                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                    $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
+                    Write-Output $content
                 '''
             }
         }
