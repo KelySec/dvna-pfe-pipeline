@@ -24,11 +24,10 @@ pipeline {
                     if not exist semgrep-report mkdir semgrep-report
                     docker run --rm -v "%CD%:/src" -e SEMGREP_FORCE_COLOR=0 -e NO_COLOR=1 -e PYTHONIOENCODING=utf-8 -e PYTHONUTF8=1 semgrep/semgrep semgrep --config=p/nodejs --config=p/security-audit --text /src/server.js --output /src/semgrep-report/semgrep-report.txt 2>nul || exit 0
                 '''
-                powershell '''
+                powershell encoding: 'UTF-8', script: '''
                     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
                     $content = Get-Content -Path "semgrep-report/semgrep-report.txt" -Encoding UTF8 -Raw
-                    $clean = $content -replace "[^\x00-\x7F]", "?"
-                    Write-Output $clean
+                    Write-Output $content
                 '''
             }
         }
