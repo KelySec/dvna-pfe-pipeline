@@ -20,8 +20,13 @@ pipeline {
             steps {
                 echo '=== Analyse statique du code ==='
                 bat '''
+                    chcp 65001
                     if not exist semgrep-report mkdir semgrep-report
-                    docker run --rm -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js --output /src/semgrep-report/semgrep-report.txt || exit 0
+                    docker run --rm -v "%CD%:/src" semgrep/semgrep semgrep --config=p/nodejs --config=p/security-audit --text /src/server.js --output /src/semgrep-report/semgrep-report.txt 2>nul || exit 0
+                '''
+                powershell '''
+                    $content = Get-Content -Path "semgrep-report/semgrep-report.txt" -Encoding UTF8 -Raw
+                    Write-Output $content
                 '''
             }
         }
