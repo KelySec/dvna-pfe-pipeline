@@ -41,7 +41,15 @@ pipeline {
         stage('3 - SCA (npm audit)') {
             steps {
                 echo '=== Analyse des dependances ==='
-                bat 'npm audit --audit-level=critical || exit 0'
+                bat '''
+                    if not exist sca-report mkdir sca-report
+                    npm audit --audit-level=critical > sca-report\\npm-audit-report.txt 2>&1 || exit 0
+                '''
+                powershell encoding: 'UTF-8', script: '''
+                    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                    $content = Get-Content -Path "sca-report/npm-audit-report.txt" -Encoding UTF8 -Raw
+                    Write-Output $content
+                '''
             }
         }
 
