@@ -20,22 +20,9 @@ pipeline {
             steps {
                 echo '=== Analyse statique du code ==='
                 bat '''
-                    chcp 65001
                     if not exist semgrep-report mkdir semgrep-report
-                    docker run --rm -v "%CD%:/src" semgrep/semgrep semgrep --config=p/nodejs --config=p/security-audit --json /src/server.js --output /src/semgrep-report/semgrep-report.json || exit 0
+                    docker run --rm -v "%CD%:/src" returntocorp/semgrep semgrep --config=p/nodejs --config=p/security-audit /src/server.js --output /src/semgrep-report/semgrep-report.txt || exit 0
                 '''
-            }
-            post {
-                always {
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'semgrep-report',
-                        reportFiles: 'semgrep-report.json',
-                        reportName: 'Semgrep SAST Report'
-                    ])
-                }
             }
         }
         
@@ -52,7 +39,7 @@ pipeline {
                 echo '=== Scan de l image Docker ==='
                 bat '''
                     docker build -t dvna-pfe:pipeline .
-                    docker run --rm -v //var/run/docker.sock://var/run/docker.sock ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL dvna-pfe:pipeline || exit 0
+                    docker run --rm -v //var/run/docker.sock://var/run/docker.sock ghcr.io/aquasecurity/trivy:latest image --severity HIGH,CRITICAL --format table --no-progress --ignore-unfixed dvna-pfe:pipeline || exit 0
                 '''
             }
         }
