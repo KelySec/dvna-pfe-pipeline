@@ -43,7 +43,7 @@ pipeline {
                         $content = Get-Content -Path "semgrep-report/semgrep-report.txt" -Encoding UTF8 -Raw
                         Write-Output $content
                     ''').trim()
-                    def status = content.contains('blocking') ? 'warning' : 'success'
+                    def status = (content.contains('findings') || content.contains('Code Findings') || content.contains('▶')) ? 'warning' : 'success'
                     sendToDashboard("Semgrep", content, status)
                 }
             }
