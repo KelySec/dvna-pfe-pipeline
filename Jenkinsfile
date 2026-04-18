@@ -22,8 +22,8 @@ pipeline {
                         [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
                         $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
                         Write-Output $content
-                    ''').trim()
-                    def status = content.contains('leaks found') && !content.contains('leaks found: 0') ? 'warning' : 'success'
+                    ''').trim().replaceAll(/\x1B\[[0-9;]*m/, '').replaceAll(/\[\d+m/, '')
+                    def status = content.contains('leaks found') && !content.contains('leaks found: 0') && !content.contains('no leaks found') ? 'warning' : 'success'
                     sendToDashboard("Gitleaks", content, status)
                     if (status == 'warning') {
                         error("Gitleaks a detecte des secrets — pipeline bloque !")
