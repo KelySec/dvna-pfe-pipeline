@@ -1,12 +1,12 @@
 pipeline {
     agent any
-
+ 
     environment {
         APP_URL = "http://localhost:9090"
     }
-
+ 
     stages {
-
+ 
         stage('1 - Secrets Scanning (Gitleaks)') {
             steps {
                 echo '=== Scan des secrets hardcodes ==='
@@ -21,7 +21,7 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('2 - SAST (Semgrep)') {
             steps {
                 echo '=== Analyse statique du code ==='
@@ -37,7 +37,7 @@ pipeline {
                 '''
             }
         }
-        
+       
         stage('3 - SCA (npm audit)') {
             steps {
                 echo '=== Analyse des dependances ==='
@@ -52,8 +52,8 @@ pipeline {
                 '''
             }
         }
-
-
+ 
+ 
         stage('4 - Container Scan (Trivy)') {
             steps {
                 echo '=== Scan de l image Docker ==='
@@ -69,8 +69,8 @@ pipeline {
                 '''
             }
         }
-
-
+ 
+ 
         stage('5 - IaC Security (Checkov)') {
             steps {
                 echo '=== Analyse IaC Dockerfile ==='
@@ -85,7 +85,7 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('6 - Run App for DAST') {
             steps {
                 echo '=== Demarrage de l application pour ZAP ==='
@@ -95,7 +95,7 @@ pipeline {
                 '''
             }
         }
-
+ 
         stage('7 - DAST (OWASP ZAP)') {
             steps {
                 echo '=== Test dynamique de l application ==='
@@ -111,7 +111,7 @@ pipeline {
             }
         }
     }
-
+ 
     post {
         always {
             echo '=== Pipeline DevSecOps termine ==='
@@ -125,3 +125,5 @@ pipeline {
         }
     }
 }
+ 
+ 
