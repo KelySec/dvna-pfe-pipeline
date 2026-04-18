@@ -160,7 +160,7 @@ def sendToDashboard(String tool, String content, String status) {
         def jsonStr = JsonOutput.toJson([
             tool   : tool,
             build  : env.BUILD_NUMBER,
-            branch : 'master',
+            branch : env.BRANCH ?: 'master',
             content: content,
             status : status
         ])
