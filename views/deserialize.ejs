@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — Deserialisation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="page-title">Deserialisation</div>
+        <div class="page-subtitle">Test de deserialisation d'objets JSON</div>
+      </div>
+      <span class="vuln-badge">CVE node-serialize — SCA</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <strong>VULN-04 :</strong> <code>node-serialize@0.0.4</code> contient une CVE critique (score CVSS 9.8).<br>
+      Detecte par <strong>npm audit</strong> et <strong>OWASP Dependency-Check</strong>.
+    </div>
+
+    <form method="POST" action="/deserialize">
+      <div class="form-group">
+        <label>Payload JSON a deserialiser</label>
+        <textarea name="payload" rows="4" placeholder='{"username":"alice","role":"user"}'></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Deserialiser</button>
+    </form>
+
+    <% if (result) { %>
+      <div class="terminal-output"><%= result %></div>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px; color:var(--text-dim); font-weight:500; text-transform:uppercase; letter-spacing:.04em; margin-bottom:12px;">CVE detectee par npm audit</div>
+    <div class="terminal-output" style="color:var(--red);">$ npm audit
+
+found 1 critical severity vulnerability
+
+  Package : node-serialize
+  Version : 0.0.4
+  Severity: CRITICAL (CVSS 9.8)
+  Title   : Remote Code Execution via Insecure Deserialization
+  URL     : https://www.npmjs.com/advisories/311</div>
+
+    <div style="margin-top:12px; padding:12px 16px; background:rgba(45,186,114,.07); border:1px solid rgba(45,186,114,.2); border-radius:5px;">
+      <div style="font-size:12px; color:var(--green); font-weight:500; margin-bottom:6px;">CORRECTION</div>
+      <div class="terminal-output" style="margin-top:0; color:var(--green);">// 1. Supprimer node-serialize du package.json
+// 2. Remplacer dans server.js :
+
+// AVANT (vulnerable)
+const data = serialize.unserialize(req.body.payload);
+
+// APRES (corrige)
+const data = JSON.parse(req.body.payload);</div>
+    </div>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

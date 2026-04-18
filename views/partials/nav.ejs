@@ -1,0 +1,24 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="nav-logo">&#9632;</span>
+    <span class="nav-title">DVNA<span class="nav-sub">-pfe</span></span>
+  </div>
+  <% if (typeof user !== 'undefined' && user) { %>
+  <div class="nav-links">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/ping">Ping</a>
+    <a href="/search">Recherche</a>
+    <a href="/notes">Notes</a>
+    <a href="/deserialize">Deserialisation</a>
+    <a href="/xml">XML</a>
+  </div>
+  <div class="nav-user">
+    <span class="user-badge"><%= user.username %></span>
+    <a href="/logout" class="btn-logout">Deconnexion</a>
+  </div>
+  <% } else { %>
+  <div style="margin-left:auto;">
+    <a href="/login" class="btn btn-primary" style="font-size:13px;padding:7px 18px;">Se connecter</a>
+  </div>
+  <% } %>
+</nav>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="hero">
+    <div class="hero-logo">&#9632;</div>
+    <h1 class="hero-title">DVNA-PFE</h1>
+    <p class="hero-sub">Application web volontairement vulnerable concue pour la demonstration d'un pipeline DevSecOps complet.</p>
+    <div class="hero-warn">&#9888; Usage pedagogique uniquement — Ne pas deployer en production</div>
+    <br><br>
+    <% if (user) { %>
+      <a href="/dashboard" class="btn btn-primary">Acceder au dashboard</a>
+    <% } else { %>
+      <a href="/login" class="btn btn-primary">Se connecter</a>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div style="margin-bottom:16px; font-size:13px; color:var(--text-dim); font-weight:500; text-transform:uppercase; letter-spacing:.04em;">Vulnerabilites couvertes</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Outil</th>
+          <th>Vulnerabilite</th>
+          <th>OWASP 2017</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Gitleaks</td><td>Secret JWT hardcode dans le code</td><td>A3 - Donnees sensibles</td></tr>
+        <tr><td>SonarQube / Semgrep</td><td>Command Injection via exec()</td><td>A1 - Injection</td></tr>
+        <tr><td>npm audit / Dep-Check</td><td>node-serialize CVE (RCE)</td><td>A9 - Composants vulnerables</td></tr>
+        <tr><td>Trivy</td><td>Image Docker avec CVEs</td><td>A6 - Mauvaise configuration</td></tr>
+        <tr><td>Checkov</td><td>Container lance en root</td><td>A6 - Mauvaise configuration</td></tr>
+        <tr><td>OWASP ZAP</td><td>En-tetes de securite absents</td><td>A6 - Mauvaise configuration</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

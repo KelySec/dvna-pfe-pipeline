@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — XML Parser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="page-title">Parser XML</div>
+        <div class="page-subtitle">Soumettez un document XML a analyser</div>
+      </div>
+      <span class="vuln-badge">XXE — SAST</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <strong>VULN-05 :</strong> Le parser XML accepte les entites externes (XXE).<br>
+      Detecte par <strong>SonarQube</strong> et <strong>Semgrep</strong> lors de l'analyse statique.
+    </div>
+
+    <form method="POST" action="/xml">
+      <div class="form-group">
+        <label>Document XML</label>
+        <textarea name="xml" rows="6" placeholder="<root><value>test</value></root>"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Parser</button>
+    </form>
+
+    <% if (result) { %>
+      <div class="terminal-output"><%= result %></div>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px; color:var(--text-dim); font-weight:500; text-transform:uppercase; letter-spacing:.04em; margin-bottom:12px;">Code vulnerable — server.js</div>
+    <div class="terminal-output" style="color:var(--yellow);">// VULNERABLE — parser sans restriction des entites externes
+const DOMParser = xmldom.DOMParser;
+const doc = new DOMParser().parseFromString(req.body.xml, 'text/xml');</div>
+
+    <div style="margin-top:12px; padding:12px 16px; background:rgba(45,186,114,.07); border:1px solid rgba(45,186,114,.2); border-radius:5px;">
+      <div style="font-size:12px; color:var(--green); font-weight:500; margin-bottom:6px;">CORRECTION</div>
+      <div class="terminal-output" style="margin-top:0; color:var(--green);">// Valider et nettoyer le XML avant parsing
+// Ou remplacer xmldom par une librairie securisee
+// et desactiver les entites externes :
+const doc = new DOMParser({
+  errorHandler: { warning: ()=>{}, error: ()=>{} }
+}).parseFromString(sanitizedXml, 'text/xml');</div>
+    </div>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

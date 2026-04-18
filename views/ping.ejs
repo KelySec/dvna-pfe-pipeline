@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — Ping Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="page-title">Ping Tool</div>
+        <div class="page-subtitle">Testez la connectivite reseau vers un hote</div>
+      </div>
+      <span class="vuln-badge">Command Injection — SAST</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <strong>VULN-01 :</strong> L'entree est passee directement a <code>exec("ping -n 2 " + host)</code> sans validation.<br>
+      Essayez : <code>127.0.0.1 & whoami</code> ou <code>127.0.0.1 & dir</code>
+    </div>
+
+    <form method="POST" action="/ping">
+      <div class="form-group">
+        <label>Adresse IP ou nom de domaine</label>
+        <input type="text" name="host" placeholder="ex: 127.0.0.1">
+      </div>
+      <button type="submit" class="btn btn-primary">Lancer le ping</button>
+    </form>
+
+    <% if (result) { %>
+      <div class="terminal-output"><%= result %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="alert alert-error" style="margin-top:12px;"><%= error %></div>
+    <% } %>
+
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px; color:var(--text-dim); font-weight:500; text-transform:uppercase; letter-spacing:.04em; margin-bottom:12px;">Code vulnerable — server.js</div>
+    <div class="terminal-output" style="color:var(--yellow);">// VULNERABLE
+exec(`ping -n 2 ${host}`, callback);
+// L'utilisateur peut injecter : 127.0.0.1 & whoami</div>
+    <div style="margin-top:12px; padding:12px 16px; background:rgba(45,186,114,.07); border:1px solid rgba(45,186,114,.2); border-radius:5px;">
+      <div style="font-size:12px; color:var(--green); font-weight:500; margin-bottom:6px;">CORRECTION</div>
+      <div class="terminal-output" style="margin-top:0; color:var(--green);">// Valider l'entree avec une regex
+const isValid = /^[a-zA-Z0-9.\-]{1,253}$/.test(host);
+if (!isValid) return res.render('ping', { error: 'Hote invalide', ... });
+execFile('ping', ['-n', '2', host], callback);</div>
+    </div>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+  <div class="login-wrap">
+
+    <div class="hero-logo" style="font-size:36px;text-align:left;margin-bottom:16px;">&#9632;</div>
+    <h1 class="login-title">Connexion</h1>
+    <p class="login-sub">Accedez a l'interface de demonstration DevSecOps.</p>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <div class="card">
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label>Nom d'utilisateur</label>
+          <input type="text" name="username" placeholder="admin" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" name="password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Se connecter</button>
+      </form>
+    </div>
+
+    <div class="login-hint">
+      Comptes de demo :<br>
+      admin / admin123 &nbsp;|&nbsp; alice / alice123 &nbsp;|&nbsp; bob / bob123
+    </div>
+
+  </div>
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,172 @@
+'use strict';
+
+const express    = require('express');
+const session    = require('express-session');
+const bodyParser = require('body-parser');
+const path       = require('path');
+const { exec }   = require('child_process');
+const serialize  = require('node-serialize');
+const xmldom     = require('xmldom');
+const xpath      = require('xpath');
+const helmet     = require('helmet');
+
+const app = express();
+
+// ============================================================
+// VULN-1 (Gitleaks) : Secret JWT hardcodé en clair
+// CORRECTION : remplacer par process.env.JWT_SECRET
+// ============================================================
+const JWT_SECRET    = "dvna-pfe-super-secret-jwt-2024";
+const ADMIN_API_KEY = "sk-dvna-admin-4f8b2c1d9e3a7f6b";
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: JWT_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false, httpOnly: false }
+}));
+
+// Base de données simulée en mémoire
+const users = [
+  { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
+  { id: 2, username: 'alice', password: 'alice123', role: 'user'  },
+  { id: 3, username: 'bob',   password: 'bob123',   role: 'user'  }
+];
+
+const notes = [
+  { id: 1, userId: 1, title: 'Note admin',  content: 'Ceci est une note privée admin.' },
+  { id: 2, userId: 2, title: 'Note Alice',  content: 'Note privée de Alice.' }
+];
+
+function requireAuth(req, res, next) {
+  if (!req.session.user) return res.redirect('/login');
+  next();
+}
+
+// ── Routes publiques ────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.render('index', { user: req.session.user || null });
+});
+
+app.get('/login', (req, res) => {
+  res.render('login', { error: null, user: null });
+});
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    req.session.user = user;
+    res.redirect('/dashboard');
+  } else {
+    res.render('login', { error: 'Identifiants incorrects', user: null });
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+});
+
+// ── Routes protégées ────────────────────────────────────────
+app.get('/dashboard', requireAuth, (req, res) => {
+  res.render('dashboard', { user: req.session.user });
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-2 (SAST) : Command Injection
+// exec() avec entrée utilisateur non filtrée
+// Test : saisir  127.0.0.1 & whoami
+// ────────────────────────────────────────────────────────────
+app.get('/ping', requireAuth, (req, res) => {
+  res.render('ping', { user: req.session.user, result: null, error: null });
+});
+
+app.post('/ping', requireAuth, (req, res) => {
+  const host = req.body.host;
+  exec(`ping -n 2 ${host}`, (err, stdout, stderr) => {
+    res.render('ping', {
+      user:   req.session.user,
+      result: stdout || stderr,
+      error:  err ? err.message : null
+    });
+  });
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-3 (DAST/ZAP) : XSS Réfléchi
+// ────────────────────────────────────────────────────────────
+app.get('/search', requireAuth, (req, res) => {
+  const query  = req.query.q || '';
+  const result = users.filter(u => u.username.includes(query));
+  res.render('search', { user: req.session.user, query, result });
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-4 (DAST/ZAP) : IDOR
+// Pas de vérification que la note appartient à l'utilisateur
+// ────────────────────────────────────────────────────────────
+app.get('/notes', requireAuth, (req, res) => {
+  const userNotes = notes.filter(n => n.userId === req.session.user.id);
+  res.render('notes', { user: req.session.user, notes: userNotes });
+});
+
+app.get('/note/:id', requireAuth, (req, res) => {
+  const note = notes.find(n => n.id === parseInt(req.params.id));
+  if (!note) return res.status(404).send('Note introuvable');
+  res.render('note', { user: req.session.user, note });
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-5 (SCA) : node-serialize CVE
+// ────────────────────────────────────────────────────────────
+app.get('/deserialize', requireAuth, (req, res) => {
+  res.render('deserialize', { user: req.session.user, result: null });
+});
+
+app.post('/deserialize', requireAuth, (req, res) => {
+  try {
+    const data = serialize.unserialize(req.body.payload);
+    res.render('deserialize', { user: req.session.user, result: JSON.stringify(data) });
+  } catch (e) {
+    res.render('deserialize', { user: req.session.user, result: 'Erreur: ' + e.message });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-6 (SAST) : XXE
+// ────────────────────────────────────────────────────────────
+app.get('/xml', requireAuth, (req, res) => {
+  res.render('xml', { user: req.session.user, result: null });
+});
+
+app.post('/xml', requireAuth, (req, res) => {
+  try {
+    const DOMParser = xmldom.DOMParser;
+    const doc       = new DOMParser().parseFromString(req.body.xml, 'text/xml');
+    const value     = xpath.select('string(//value)', doc);
+    res.render('xml', { user: req.session.user, result: value });
+  } catch (e) {
+    res.render('xml', { user: req.session.user, result: 'Erreur XML' });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+// VULN-7 (ZAP) : En-têtes de sécurité absents
+// helmet() est disponible mais NON activé intentionnellement
+// CORRECTION : ajouter app.use(helmet()) ici
+// ────────────────────────────────────────────────────────────
+
+const PORT = process.env.PORT || 9090;
+app.listen(PORT, () => {
+  console.log(`DVNA-PFE demarre sur http://localhost:${PORT}`);
+  console.log(`Vulnerabilites actives : Command Injection, XSS, IDOR, Deserialisation, XXE, Headers manquants`);
+});
+
+module.exports = app;

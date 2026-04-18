@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Connecte en tant que <strong><%= user.username %></strong> — Role : <%= user.role %></div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      Cette application contient des vulnerabilites intentionnelles a des fins de demonstration DevSecOps.
+    </div>
+  </div>
+
+  <div style="font-size:13px; color:var(--text-dim); font-weight:500; text-transform:uppercase; letter-spacing:.04em; margin-bottom:12px;">
+    Modules de demonstration
+  </div>
+
+  <div class="vuln-grid">
+
+    <a href="/ping" class="vuln-card">
+      <div class="vuln-card-num">VULN-01</div>
+      <div class="vuln-card-title">Ping Tool</div>
+      <div class="vuln-card-tool">SonarQube / Semgrep — SAST</div>
+      <div class="vuln-card-desc">Command Injection via child_process.exec() avec entree non filtree.</div>
+    </a>
+
+    <a href="/search" class="vuln-card">
+      <div class="vuln-card-num">VULN-02</div>
+      <div class="vuln-card-title">Recherche utilisateur</div>
+      <div class="vuln-card-tool">OWASP ZAP — DAST</div>
+      <div class="vuln-card-desc">XSS reflechi — la saisie est affichee sans echappement HTML.</div>
+    </a>
+
+    <a href="/notes" class="vuln-card">
+      <div class="vuln-card-num">VULN-03</div>
+      <div class="vuln-card-title">Notes privees</div>
+      <div class="vuln-card-tool">OWASP ZAP — DAST</div>
+      <div class="vuln-card-desc">IDOR — acces aux notes d'autres utilisateurs via manipulation d'ID.</div>
+    </a>
+
+    <a href="/deserialize" class="vuln-card">
+      <div class="vuln-card-num">VULN-04</div>
+      <div class="vuln-card-title">Deserialisation</div>
+      <div class="vuln-card-tool">npm audit / Dep-Check — SCA</div>
+      <div class="vuln-card-desc">node-serialize 0.0.4 — CVE permettant une execution de code a distance.</div>
+    </a>
+
+    <a href="/xml" class="vuln-card">
+      <div class="vuln-card-num">VULN-05</div>
+      <div class="vuln-card-title">Parser XML</div>
+      <div class="vuln-card-tool">SonarQube / Semgrep — SAST</div>
+      <div class="vuln-card-desc">XXE — entites XML externes permettant la lecture de fichiers locaux.</div>
+    </a>
+
+    <div class="vuln-card" style="opacity:.6; cursor:default;">
+      <div class="vuln-card-num">VULN-06</div>
+      <div class="vuln-card-title">En-tetes HTTP</div>
+      <div class="vuln-card-tool">OWASP ZAP — DAST</div>
+      <div class="vuln-card-desc">X-Frame-Options, CSP, HSTS absents — detectes sur toutes les pages.</div>
+    </div>
+
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

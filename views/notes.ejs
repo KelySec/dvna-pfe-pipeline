@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVNA-PFE — Notes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/nav') %>
+<main class="main-content">
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="page-title">Mes notes</div>
+        <div class="page-subtitle">Notes de l'utilisateur <strong><%= user.username %></strong></div>
+      </div>
+      <span class="vuln-badge">IDOR — DAST / ZAP</span>
+    </div>
+
+    <div class="alert alert-warn">
+      <strong>VULN-03 :</strong> La route <code>/note/:id</code> ne verifie pas que la note appartient a l'utilisateur connecte.<br>
+      Connectez-vous en tant qu'<strong>alice</strong> puis accedez a <a href="/note/1" style="color:var(--accent2);">/note/1</a> (note de admin).
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Titre</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <% if (notes.length === 0) { %>
+          <tr><td colspan="3" style="color:var(--text-dim);">Aucune note pour cet utilisateur.</td></tr>
+        <% } %>
+        <% notes.forEach(n => { %>
+          <tr>
+            <td><%= n.id %></td>
+            <td><%= n.title %></td>
+            <td><a href="/note/<%= n.id %>" style="color:var(--accent2);font-size:12px;">Voir</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>
