@@ -16,7 +16,7 @@ pipeline {
                 script {
                     bat '''
                         if not exist gitleaks-report mkdir gitleaks-report
-                        D:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git --no-banner -v > gitleaks-report\\gitleaks-report.txt 2>&1 || exit 0
+                        A:\\DevSecOps\\tools\\gitleaks\\gitleaks.exe detect --source . --config .gitleaks.toml --no-git --no-banner -v > gitleaks-report\\gitleaks-report.txt 2>&1 || exit 0
                     '''
                     def content = powershell(encoding: 'UTF-8', returnStdout: true, script: '''
                         [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
