@@ -23,7 +23,7 @@ pipeline {
                         $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
                         Write-Output $content
                     ''').trim()
-                    def status = (content.toLowerCase().contains('code finding') || content.toLowerCase().contains('findings') || content.contains('Blocking') || content.contains('Possible command execution')) ? 'warning' : 'success'
+                    def status = content.contains('leaks found') && !content.contains('leaks found: 0') ? 'warning' : 'success'
                     sendToDashboard("Gitleaks", content, status)
                 }
             }
@@ -43,7 +43,7 @@ pipeline {
                         $content = Get-Content -Path "semgrep-report/semgrep-report.txt" -Encoding UTF8 -Raw
                         Write-Output $content
                     ''').trim()
-                    def status = (content.contains('findings') || content.contains('Code Findings') || content.contains('▶')) ? 'warning' : 'success'
+                    def status = (content.toLowerCase().contains('code finding') || content.toLowerCase().contains('findings') || content.contains('Blocking') || content.contains('Possible command execution')) ? 'warning' : 'success'
                     sendToDashboard("Semgrep", content, status)
                 }
             }
