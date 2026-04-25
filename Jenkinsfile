@@ -23,7 +23,7 @@ pipeline {
                         $content = Get-Content -Path "gitleaks-report/gitleaks-report.txt" -Encoding UTF8 -Raw
                         Write-Output $content
                     ''').trim()
-                    def status = content.contains('leaks found') && !content.contains('leaks found: 0') ? 'warning' : 'success'
+                    def status = (content.toLowerCase().contains('code finding') || content.toLowerCase().contains('findings') || content.contains('Blocking') || content.contains('Possible command execution')) ? 'warning' : 'success'
                     sendToDashboard("Gitleaks", content, status)
                 }
             }
